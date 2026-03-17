@@ -1,5 +1,6 @@
 package uit.q21.myapplication
 
+import android.graphics.fonts.FontStyle
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -21,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,13 +37,40 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        data,
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                        Counter(Modifier.padding(innerPadding))
+                //                    Greeting(
+//                        data,
+//                        modifier = Modifier.padding(innerPadding)
+//                    )
                 }
             }
         }
+    }
+}
+
+@Composable
+fun CounterButton(text: String, onClick: ()->Unit) {
+    Button(
+        onClick = onClick,
+        shape = RectangleShape,
+        modifier = Modifier.padding(1.dp)
+    ) {
+        Text(text = text, fontSize = 20.sp)
+    }
+}
+
+@Composable
+fun Counter(modifier: Modifier = Modifier) {
+    Column {
+        Spacer(modifier)
+        Row {
+            CounterButton(onClick = {}, text = "-")
+            Spacer(modifier = Modifier.padding(horizontal = 10.dp))
+            Text(text = "0", fontSize = 40.sp, fontWeight = FontWeight.ExtraBold)
+            Spacer(modifier = Modifier.padding(horizontal = 10.dp))
+            CounterButton(onClick = {}, text = "+")
+        }
+
     }
 }
 
@@ -155,8 +184,8 @@ fun Greeting(data: CalculatorData = CalculatorData(0,0,-1), modifier: Modifier =
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun CounterPreview() {
     MyApplicationTheme {
-        Greeting()
+        Counter()
     }
 }
