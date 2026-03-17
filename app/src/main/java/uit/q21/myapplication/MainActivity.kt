@@ -6,11 +6,16 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -41,7 +46,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Counter(
                         Modifier.padding(innerPadding),
-                        maxValue = 15)
+                        maxValue = 10, counterStyle = 1)
 
 //                    Greeting(
 //                        data,
@@ -66,22 +71,47 @@ fun CounterButton(text: String, isEnabled: Boolean = true, onClick: ()->Unit) {
 }
 
 @Composable
-fun Counter(modifier: Modifier = Modifier, maxValue: Int = 10) {
+fun BarValue(modifier: Modifier = Modifier, maxValue: Int, currentValue: Int = 0) {
+    Row {
+        for (i in 1..maxValue) {
+            Spacer(
+                modifier =
+                    Modifier
+                        .fillMaxHeight()
+                        .width(20.dp)
+                        .padding(horizontal = 2.dp)
+                        .background(
+                            if (i<=currentValue) Color.Green else Color.Gray
+                        )
+            )
+        }
+    }
+}
+
+@Composable
+fun Counter(modifier: Modifier = Modifier, maxValue: Int = 10, counterStyle: Int = 0) {
     var counterValue by remember { mutableStateOf(0)}
     Column {
         Spacer(modifier)
         Row (
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.height(IntrinsicSize.Min)
+
         ) {
             CounterButton(text = "-", isEnabled = counterValue>0) {
                 if (counterValue>0) counterValue--
             }
             Spacer(modifier = Modifier.padding(horizontal = 10.dp))
-            Text(
-                text = counterValue.toString(),
-                fontSize = 30.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
+            if (counterStyle==0)
+                Text(
+                    text = counterValue.toString(),
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+            else if (counterStyle==1) {
+                BarValue(modifier, maxValue, counterValue)
+            }
+
             Spacer(modifier = Modifier.padding(horizontal = 10.dp))
             CounterButton(text = "+", isEnabled = counterValue<maxValue) {
                 if (counterValue<maxValue) counterValue++
@@ -202,6 +232,6 @@ fun Greeting(data: CalculatorData = CalculatorData(0,0,-1), modifier: Modifier =
 @Composable
 fun CounterPreview() {
     MyApplicationTheme {
-        Counter()
+        Counter(counterStyle = 1)
     }
 }
