@@ -19,10 +19,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,8 +39,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                        Counter(Modifier.padding(innerPadding))
-                //                    Greeting(
+                    Counter(
+                        Modifier.padding(innerPadding),
+                        maxValue = 15)
+
+//                    Greeting(
 //                        data,
 //                        modifier = Modifier.padding(innerPadding)
 //                    )
@@ -49,10 +54,11 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun CounterButton(text: String, onClick: ()->Unit) {
+fun CounterButton(text: String, isEnabled: Boolean = true, onClick: ()->Unit) {
     Button(
         onClick = onClick,
         shape = RectangleShape,
+        enabled = isEnabled,
         modifier = Modifier.padding(1.dp)
     ) {
         Text(text = text, fontSize = 20.sp)
@@ -60,17 +66,27 @@ fun CounterButton(text: String, onClick: ()->Unit) {
 }
 
 @Composable
-fun Counter(modifier: Modifier = Modifier) {
+fun Counter(modifier: Modifier = Modifier, maxValue: Int = 10) {
+    var counterValue by remember { mutableStateOf(0)}
     Column {
         Spacer(modifier)
-        Row {
-            CounterButton(onClick = {}, text = "-")
+        Row (
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CounterButton(text = "-", isEnabled = counterValue>0) {
+                if (counterValue>0) counterValue--
+            }
             Spacer(modifier = Modifier.padding(horizontal = 10.dp))
-            Text(text = "0", fontSize = 40.sp, fontWeight = FontWeight.ExtraBold)
+            Text(
+                text = counterValue.toString(),
+                fontSize = 30.sp,
+                fontWeight = FontWeight.ExtraBold
+            )
             Spacer(modifier = Modifier.padding(horizontal = 10.dp))
-            CounterButton(onClick = {}, text = "+")
+            CounterButton(text = "+", isEnabled = counterValue<maxValue) {
+                if (counterValue<maxValue) counterValue++
+            }
         }
-
     }
 }
 
