@@ -9,10 +9,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -20,6 +22,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,10 +36,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import uit.q21.myapplication.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
-    var data = CalculatorData(0,0,-1)
+//    var data = CalculatorData(0,0,-1)
+
+    val data = arrayOf(
+        arrayOf(CardData("1"),CardData("A"),CardData("3"),CardData("H")),
+        arrayOf(CardData("3"),CardData("H"),CardData("A"),CardData("1")),
+        arrayOf(CardData("2"),CardData("*"),CardData("&"),CardData("$")),
+        arrayOf(CardData("*"),CardData("2"),CardData("&"),CardData("2"))
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,9 +55,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Counter(
-                        Modifier.padding(innerPadding),
-                        maxValue = 10, counterStyle = 1)
+                    MindGameScreen(innerPadding,data)
+//                    Counter(
+//                        Modifier.padding(innerPadding),
+//                        maxValue = 10, counterStyle = 1)
 
 //                    Greeting(
 //                        data,
@@ -56,6 +68,69 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+@Composable
+fun MindGameCard(cardData: CardData, onClick: ()->Unit) {
+
+    Button(
+        onClick = onClick,
+        shape = RectangleShape,
+        enabled = cardData.state.value!=3,
+        modifier = Modifier.padding(horizontal = 2.dp)
+    ) {
+        Text(fontSize = 30.sp, text = if (cardData.state.value>=1) cardData.value else " ")
+    }
+}
+
+@Composable
+fun MindGameScreen(innerpadding: PaddingValues, data: Array<Array<CardData>>) {
+    var lastRow by remember { mutableStateOf(-1)}
+    var lastColumn by remember { mutableStateOf(-1)}
+    var openCount by remember { mutableStateOf(0)}
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Spacer(modifier = Modifier.padding(innerpadding))
+        for (r in 0..3)
+            Row{
+                for (c in 0..3)
+                    MindGameCard(data[r][c]) {
+                        if (openCount<2 && lastRow!=r && lastColumn!=c) {
+                            data[r][c].state.value = 1
+                            openCount++
+
+                            if (lastRow>=0 && (data[r][c].value == data[lastRow][lastColumn].value)) {
+                                data[r][c].state.value = 3
+                                data[lastRow][lastColumn].state.value = 3
+                                lastRow = -1
+                                lastColumn = -1
+                            } else {
+                                lastRow = r
+                                lastColumn = c
+                            }
+                        }
+                    }
+            }
+
+        LaunchedEffect(openCount) {
+            if (openCount==2) {
+                // close all open
+                delay(2000)
+                for (r in 0..3)
+                    for (c in 0..3) {
+                        if (data[r][c].state.value==1) {
+                            data[r][c].state.value=0
+                        }
+                    }
+                openCount=0
+                lastRow = -1
+                lastColumn = -1
+            }
+        }
+    }
+
+
 }
 
 @Composable
@@ -230,8 +305,18 @@ fun Greeting(data: CalculatorData = CalculatorData(0,0,-1), modifier: Modifier =
 
 @Preview(showBackground = true)
 @Composable
-fun CounterPreview() {
+fun MindGamePreview() {
+
+    val data = arrayOf(
+        arrayOf(CardData("1"),CardData("A"),CardData("3"),CardData("H")),
+        arrayOf(CardData("3"),CardData("H"),CardData("A"),CardData("1")),
+        arrayOf(CardData("2"),CardData("*"),CardData("&"),CardData("$")),
+        arrayOf(CardData("*"),CardData("2"),CardData("&"),CardData("2"))
+    )
+
+
+
     MyApplicationTheme {
-        Counter(counterStyle = 1)
+        MindGameScreen(PaddingValues(1.dp),data)
     }
 }
