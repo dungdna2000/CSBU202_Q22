@@ -79,7 +79,7 @@ fun MindGameCard(cardData: CardData, onClick: ()->Unit) {
         enabled = cardData.state.value!=3,
         modifier = Modifier.padding(horizontal = 2.dp)
     ) {
-        Text(fontSize = 30.sp, text = if (cardData.state.value>=1) cardData.value else " ")
+        Text(fontSize = 30.sp, text = if (cardData.state.value>=1) cardData.value else "?")
     }
 }
 
@@ -96,7 +96,7 @@ fun MindGameScreen(innerpadding: PaddingValues, data: Array<Array<CardData>>) {
             Row{
                 for (c in 0..3)
                     MindGameCard(data[r][c]) {
-                        if (openCount<2 && lastRow!=r && lastColumn!=c) {
+                        if (openCount<2 && (lastRow!=r || lastColumn!=c)) {
                             data[r][c].state.value = 1
                             openCount++
 
