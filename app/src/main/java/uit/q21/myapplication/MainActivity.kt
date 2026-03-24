@@ -23,7 +23,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import uit.q21.myapplication.ui.theme.MyApplicationTheme
+import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
 //    var data = CalculatorData(0,0,-1)
@@ -51,15 +54,23 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val now = LocalDate.now()
+        var selectedDate = mutableIntStateOf(now.dayOfMonth)
+        var selectedMonth = mutableIntStateOf(now.monthValue)
+        var selectedYear = mutableIntStateOf(now.year)
+
+
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MindGameScreen(innerPadding,data)
+                      CalendarScreen(selectedDate, selectedMonth, selectedYear)
+//                    MindGameScreen(innerPadding,data)
 //                    Counter(
 //                        Modifier.padding(innerPadding),
 //                        maxValue = 10, counterStyle = 1)
-
+//
 //                    Greeting(
 //                        data,
 //                        modifier = Modifier.padding(innerPadding)
@@ -70,6 +81,109 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
+@Composable
+fun YearSelector(
+    selectedYear: MutableIntState = mutableIntStateOf(1980))
+{
+    Row {
+        Button(onClick={selectedYear.intValue--}, shape = RectangleShape) { Text(text = "<") }
+        Text(text = "${selectedYear.intValue}")
+        Button(onClick={selectedYear.intValue++}, shape = RectangleShape) { Text(text = ">") }
+    }
+}
+
+@Composable
+fun MonthSelector(
+    selectedMonth: MutableIntState = mutableIntStateOf(1),
+    selectedYear: MutableIntState = mutableIntStateOf(1980)
+) {
+    Row {
+        Button(onClick={
+            if (selectedMonth.intValue == 1) {
+                selectedMonth.intValue = 12
+                selectedYear.intValue--
+            } else
+                selectedMonth.intValue--
+        }, shape = RectangleShape) { Text(text = "<") }
+        Text(text = "${selectedMonth.intValue}")
+        Button(onClick={
+            if (selectedMonth.intValue==12) {
+                selectedMonth.intValue = 1
+                selectedYear.intValue++
+            } else {
+                selectedMonth.intValue++
+            }
+        }, shape = RectangleShape) { Text(text = ">") }
+    }
+}
+
+@Composable
+fun DateSelector(
+    selectedMonth: MutableIntState = mutableIntStateOf(1),
+    selectedYear: MutableIntState = mutableIntStateOf(1980),
+    selectedDate: MutableIntState = mutableIntStateOf(1)
+) {
+    val selected = LocalDate.of(
+        selectedYear.intValue,
+        selectedMonth.intValue,
+        selectedDate.intValue)
+
+    val selectedFirstDay = LocalDate.of(
+        selectedYear.intValue,
+        selectedMonth.intValue,
+        1)
+
+
+    val lastDay = selected.month.length(selected.isLeapYear)
+    val startMonthWeekDay = selectedFirstDay.dayOfWeek.value
+
+    Column {
+        Row {
+            for (d in arrayOf("S","M","T","W","Th","F","S")) {
+                Button(onClick={}, enabled = false, shape=RectangleShape) {
+                    Text( text = d)
+                }
+                Spacer(modifier = Modifier.padding(horizontal = 1.dp))
+            }
+        }
+
+        val colStart = (if (startMonthWeekDay==7) 0 else (startMonthWeekDay))
+
+        var dd = -(colStart - 1)
+        Column {
+            for (r in 0..4) {
+                Row {
+                    for (c in 0..6) {
+                        val t = if (dd<1) "." else dd
+                        Button(onClick={}, shape=RectangleShape) {
+                            Text(text = "$t")
+                        }
+                        Spacer(modifier = Modifier.padding(horizontal = 1.dp))
+
+                        dd++
+                    }
+                }
+            }
+        }
+
+    }
+}
+
+@Composable
+fun CalendarScreen(
+    selectedDate: MutableIntState = mutableIntStateOf(1),
+    selectedMonth: MutableIntState = mutableIntStateOf(1),
+    selectedYear: MutableIntState = mutableIntStateOf(1980)
+    ) {
+    Column {
+        Text( text = "${selectedDate.intValue}/${selectedMonth.intValue}/${selectedYear.intValue}")
+        YearSelector(selectedYear)
+        MonthSelector(selectedMonth = selectedMonth, selectedYear = selectedYear)
+        DateSelector(selectedMonth, selectedYear, selectedDate)
+    }
+}
+
 @Composable
 fun MindGameCard(cardData: CardData, onClick: ()->Unit) {
 
@@ -77,7 +191,7 @@ fun MindGameCard(cardData: CardData, onClick: ()->Unit) {
         onClick = onClick,
         shape = RectangleShape,
         enabled = cardData.state.value!=3,
-        modifier = Modifier.padding(horizontal = 2.dp)
+        modifier = Modifier.padding(2.dp)
     ) {
         Text(fontSize = 30.sp, text = if (cardData.state.value>=1) cardData.value else "?")
     }
@@ -305,18 +419,16 @@ fun Greeting(data: CalculatorData = CalculatorData(0,0,-1), modifier: Modifier =
 
 @Preview(showBackground = true)
 @Composable
-fun MindGamePreview() {
+fun CalendarPreview() {
 
-    val data = arrayOf(
-        arrayOf(CardData("1"),CardData("A"),CardData("3"),CardData("H")),
-        arrayOf(CardData("3"),CardData("H"),CardData("A"),CardData("1")),
-        arrayOf(CardData("2"),CardData("*"),CardData("&"),CardData("$")),
-        arrayOf(CardData("*"),CardData("2"),CardData("&"),CardData("2"))
-    )
-
-
+//    val data = arrayOf(
+//        arrayOf(CardData("1"),CardData("A"),CardData("3"),CardData("H")),
+//        arrayOf(CardData("3"),CardData("H"),CardData("A"),CardData("1")),
+//        arrayOf(CardData("2"),CardData("*"),CardData("&"),CardData("$")),
+//        arrayOf(CardData("*"),CardData("2"),CardData("&"),CardData("2"))
+//    )
 
     MyApplicationTheme {
-        MindGameScreen(PaddingValues(1.dp),data)
+        CalendarScreen()
     }
 }
