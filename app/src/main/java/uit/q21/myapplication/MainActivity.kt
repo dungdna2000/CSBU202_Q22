@@ -2,12 +2,14 @@ package uit.q21.myapplication
 
 import android.graphics.fonts.FontStyle
 import android.os.Bundle
+import android.text.Layout
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -110,20 +112,27 @@ fun ChessCell(
     modifier: Modifier = Modifier,
     row: Int,
     column: Int,
-    data: MutableIntState
+    data: MutableIntState,
+    isSelected: Boolean = false,
+    onClick: () -> Unit
 ) {
     val blackColor = Color.Black
     val whiteColor = Color.LightGray
+    val selectedColor = Color.Cyan
 
     val cellColor =
-        if ( (row%2==0 && column%2==1) || (row%2==1 && column%2==0))
-            blackColor
-        else whiteColor
+        if (isSelected) selectedColor
+        else
+            if ( (row%2==0 && column%2==1) || (row%2==1 && column%2==0))
+                blackColor
+            else
+                whiteColor
 
     Box(
         modifier = modifier
             .aspectRatio(1.0f)
             .background(cellColor)
+            .clickable { onClick() }
     ) {
         val id =
             when (data.intValue) {
@@ -144,22 +153,37 @@ fun ChessBoard(
     modifier: Modifier = Modifier,
     chessData: Array<Array<MutableIntState>>) {
 
-    Column(
-        modifier = modifier.padding()
-    ) {
+    var selectedRow by remember { mutableIntStateOf(-1)}
+    var selectedColumn by remember { mutableIntStateOf(-1)}
 
-       for (row in 0..7) {
-           Row(
-               modifier = Modifier.fillMaxWidth()
-           ) {
-               for (column in 0..7) {
-                   ChessCell(
-                       modifier = Modifier.weight(1.0f),
-                       row = row, column = column, chessData[row][column])
+    Box(
+        modifier = modifier.fillMaxHeight(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column {
+           for (row in 0..7) {
+               Row(
+                   modifier = Modifier.fillMaxWidth()
+               ) {
+                   for (column in 0..7) {
+                       ChessCell(
+                           modifier = Modifier.weight(1.0f),
+                           row = row, column = column, chessData[row][column],
+                           isSelected = (row == selectedRow && column == selectedColumn)
+                       ) {
+                           if (selectedColumn>0 && selectedRow>=0 && chessData[row][column].intValue == 0) {
+                               chessData[row][column].intValue = chessData[selectedRow][selectedColumn].intValue
+                               chessData[selectedRow][selectedColumn].intValue = 0
+                           }
+                           selectedRow = row
+                           selectedColumn = column
+                       }
+                   }
                }
            }
-       }
+        }    // column
     }
+
 }
 
 @Composable
