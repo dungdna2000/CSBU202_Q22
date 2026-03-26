@@ -6,7 +6,10 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -33,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -139,12 +143,21 @@ fun DateSelector(
     val startMonthWeekDay = selectedFirstDay.dayOfWeek.value
 
     Column {
-        Row {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
             for (d in arrayOf("S","M","T","W","Th","F","S")) {
-                Button(onClick={}, enabled = false, shape=RectangleShape) {
-                    Text( text = d)
+                Box(
+                    modifier = Modifier.weight(1.0f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = d)
                 }
-                Spacer(modifier = Modifier.padding(horizontal = 1.dp))
+//                Button(onClick={}, enabled = false, shape=RectangleShape) {
+//                    Text( text = d)
+//                }
+//                Spacer(modifier = Modifier.padding(horizontal = 1.dp))
             }
         }
 
@@ -153,13 +166,23 @@ fun DateSelector(
         var dd = -(colStart - 1)
         Column {
             for (r in 0..4) {
-                Row {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
                     for (c in 0..6) {
                         val t = if (dd<1) "." else dd
-                        Button(onClick={}, shape=RectangleShape) {
+                        Box(
+                            modifier = Modifier.weight(1.0f),
+                            contentAlignment = Alignment.Center
+                        ) {
                             Text(text = "$t")
                         }
-                        Spacer(modifier = Modifier.padding(horizontal = 1.dp))
+
+//                        Button(onClick={}, shape=RectangleShape) {
+//                            Text(text = "$t")
+//                        }
+//                        Spacer(modifier = Modifier.padding(horizontal = 1.dp))
 
                         dd++
                     }
@@ -177,6 +200,9 @@ fun CalendarScreen(
     selectedYear: MutableIntState = mutableIntStateOf(1980)
     ) {
     Column {
+//        Box(modifier = Modifier.width(100.dp)) {
+//            Image(painter = painterResource(R.drawable.w_bishop_2x_ns), contentDescription = "")
+//        }
         Text( text = "${selectedDate.intValue}/${selectedMonth.intValue}/${selectedYear.intValue}")
         YearSelector(selectedYear)
         MonthSelector(selectedMonth = selectedMonth, selectedYear = selectedYear)
