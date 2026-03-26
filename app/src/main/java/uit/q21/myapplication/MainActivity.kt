@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -49,27 +50,46 @@ import java.time.LocalDate
 class MainActivity : ComponentActivity() {
 //    var data = CalculatorData(0,0,-1)
 
-    val data = arrayOf(
-        arrayOf(CardData("1"),CardData("A"),CardData("3"),CardData("H")),
-        arrayOf(CardData("3"),CardData("H"),CardData("A"),CardData("1")),
-        arrayOf(CardData("2"),CardData("*"),CardData("&"),CardData("$")),
-        arrayOf(CardData("*"),CardData("2"),CardData("&"),CardData("2"))
-    )
+//    val data = arrayOf(
+//        arrayOf(CardData("1"),CardData("A"),CardData("3"),CardData("H")),
+//        arrayOf(CardData("3"),CardData("H"),CardData("A"),CardData("1")),
+//        arrayOf(CardData("2"),CardData("*"),CardData("&"),CardData("$")),
+//        arrayOf(CardData("*"),CardData("2"),CardData("&"),CardData("2"))
+//    )
+    val chessData =
+        Array(8) {
+            Array(8) { mutableIntStateOf(0) }
+        }
+
+    init {
+        chessData[0][0].intValue = 1
+        chessData[0][3].intValue = 2
+        for (col in 0..7)
+            chessData[1][col].intValue = 3
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val now = LocalDate.now()
-        var selectedDate = mutableIntStateOf(now.dayOfMonth)
-        var selectedMonth = mutableIntStateOf(now.monthValue)
-        var selectedYear = mutableIntStateOf(now.year)
+//        val now = LocalDate.now()
+//        var selectedDate = mutableIntStateOf(now.dayOfMonth)
+//        var selectedMonth = mutableIntStateOf(now.monthValue)
+//        var selectedYear = mutableIntStateOf(now.year)
 
 
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
+
+
+
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                      CalendarScreen(selectedDate, selectedMonth, selectedYear)
+                    ChessBoard(
+                        modifier = Modifier.padding(innerPadding),
+                        chessData
+                    )
+//                    CalendarScreen(selectedDate, selectedMonth, selectedYear)
 //                    MindGameScreen(innerPadding,data)
 //                    Counter(
 //                        Modifier.padding(innerPadding),
@@ -85,6 +105,62 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Composable
+fun ChessCell(
+    modifier: Modifier = Modifier,
+    row: Int,
+    column: Int,
+    data: MutableIntState
+) {
+    val blackColor = Color.Black
+    val whiteColor = Color.LightGray
+
+    val cellColor =
+        if ( (row%2==0 && column%2==1) || (row%2==1 && column%2==0))
+            blackColor
+        else whiteColor
+
+    Box(
+        modifier = modifier
+            .aspectRatio(1.0f)
+            .background(cellColor)
+    ) {
+        val id =
+            when (data.intValue) {
+                1 -> R.drawable.b_king_2x_ns
+                2 -> R.drawable.w_bishop_2x_ns
+                3 -> R.drawable.w_pawn_2x_ns
+                else -> 0
+            }
+
+        if (id>0)
+        Image(painter = painterResource(id),
+            contentDescription = "")
+    }
+}
+
+@Composable
+fun ChessBoard(
+    modifier: Modifier = Modifier,
+    chessData: Array<Array<MutableIntState>>) {
+
+    Column(
+        modifier = modifier.padding()
+    ) {
+
+       for (row in 0..7) {
+           Row(
+               modifier = Modifier.fillMaxWidth()
+           ) {
+               for (column in 0..7) {
+                   ChessCell(
+                       modifier = Modifier.weight(1.0f),
+                       row = row, column = column, chessData[row][column])
+               }
+           }
+       }
+    }
+}
 
 @Composable
 fun YearSelector(
@@ -445,7 +521,7 @@ fun Greeting(data: CalculatorData = CalculatorData(0,0,-1), modifier: Modifier =
 
 @Preview(showBackground = true)
 @Composable
-fun CalendarPreview() {
+fun ChessBoardPreview() {
 
 //    val data = arrayOf(
 //        arrayOf(CardData("1"),CardData("A"),CardData("3"),CardData("H")),
@@ -455,6 +531,6 @@ fun CalendarPreview() {
 //    )
 
     MyApplicationTheme {
-        CalendarScreen()
+        //ChessBoard()
     }
 }
