@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -63,6 +64,11 @@ class MainActivity : ComponentActivity() {
             Array(8) { mutableIntStateOf(0) }
         }
 
+    val highlightData =
+        Array(8) {
+            Array(8) { mutableStateOf(false) }
+        }
+
     init {
         chessData[0][0].intValue = 1
         chessData[0][3].intValue = 2
@@ -89,7 +95,8 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     ChessBoard(
                         modifier = Modifier.padding(innerPadding),
-                        chessData
+                        chessData,
+                        highlightData,
                     )
 //                    CalendarScreen(selectedDate, selectedMonth, selectedYear)
 //                    MindGameScreen(innerPadding,data)
@@ -114,16 +121,18 @@ fun ChessCell(
     column: Int,
     data: MutableIntState,
     isSelected: Boolean = false,
+    isHighLighted: Boolean = false,
     onClick: () -> Unit
 ) {
     val blackColor = Color.Black
     val whiteColor = Color.LightGray
     val selectedColor = Color.Cyan
+    val highlightColor = Color.Green
 
     val cellColor =
         if (isSelected) selectedColor
-        else
-            if ( (row%2==0 && column%2==1) || (row%2==1 && column%2==0))
+        else if (isHighLighted) highlightColor
+        else if ( (row%2==0 && column%2==1) || (row%2==1 && column%2==0))
                 blackColor
             else
                 whiteColor
@@ -148,10 +157,27 @@ fun ChessCell(
     }
 }
 
+fun highLightMove(row: Int, column: Int, piece: Int, highLightData: Array<Array<MutableState<Boolean>>>) {
+    for (r in 0..7)
+        for (c in 0..7)
+            highLightData[r][c].value = false
+
+    when (piece) {
+        1 -> {
+            for (r in row-1..row+1)
+                for (c in column-1..column+1)
+                    if (r in 0..7 && c in 0..7)
+                        highLightData[r][c].value = true
+        }
+    }
+}
+
 @Composable
 fun ChessBoard(
     modifier: Modifier = Modifier,
-    chessData: Array<Array<MutableIntState>>) {
+    chessData: Array<Array<MutableIntState>>,
+    highlightData: Array<Array<MutableState<Boolean>>>
+) {
 
     var selectedRow by remember { mutableIntStateOf(-1)}
     var selectedColumn by remember { mutableIntStateOf(-1)}
@@ -169,14 +195,22 @@ fun ChessBoard(
                        ChessCell(
                            modifier = Modifier.weight(1.0f),
                            row = row, column = column, chessData[row][column],
-                           isSelected = (row == selectedRow && column == selectedColumn)
+                           isSelected = (row == selectedRow && column == selectedColumn),
+                           isHighLighted = (highlightData[row][column].value)
                        ) {
-                           if (selectedColumn>0 && selectedRow>=0 && chessData[row][column].intValue == 0) {
+                           if (selectedColumn>=0 && selectedRow>=0 && chessData[row][column].intValue == 0) {
                                chessData[row][column].intValue = chessData[selectedRow][selectedColumn].intValue
                                chessData[selectedRow][selectedColumn].intValue = 0
                            }
                            selectedRow = row
                            selectedColumn = column
+
+                           highLightMove(
+                               row,
+                               column,
+                               chessData[selectedRow][selectedColumn].intValue,
+                               highlightData
+                           )
                        }
                    }
                }
