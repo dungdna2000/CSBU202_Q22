@@ -127,7 +127,7 @@ fun ChessCell(
     val blackColor = Color.Black
     val whiteColor = Color.LightGray
     val selectedColor = Color.Cyan
-    val highlightColor = Color.Green
+    val highlightColor = Color(0,128,0,255)
 
     val cellColor =
         if (isSelected) selectedColor
@@ -137,8 +137,10 @@ fun ChessCell(
             else
                 whiteColor
 
+    val padding = if (isHighLighted) 1.dp else 0.dp
     Box(
         modifier = modifier
+            .padding(padding)
             .aspectRatio(1.0f)
             .background(cellColor)
             .clickable { onClick() }
@@ -157,7 +159,13 @@ fun ChessCell(
     }
 }
 
-fun highLightMove(row: Int, column: Int, piece: Int, highLightData: Array<Array<MutableState<Boolean>>>) {
+fun highLightMove(
+    row: Int,
+    column: Int,
+    piece: Int,
+    highLightData: Array<Array<MutableState<Boolean>>>,
+    chessData: Array<Array<MutableIntState>>
+) {
     for (r in 0..7)
         for (c in 0..7)
             highLightData[r][c].value = false
@@ -168,6 +176,37 @@ fun highLightMove(row: Int, column: Int, piece: Int, highLightData: Array<Array<
                 for (c in column-1..column+1)
                     if (r in 0..7 && c in 0..7)
                         highLightData[r][c].value = true
+        }
+        2 -> {
+            var i=1;
+            while ((row-i) in 0..7 && (column-i) in 0..7) {
+                if (chessData[row-i][column-i].intValue!=0) break;
+                highLightData[row - i][column - i].value = true
+                i++
+            }
+
+            i=1;
+            while ((row-i) in 0..7 && (column + i) in 0..7) {
+                if (chessData[row-i][column+i].intValue!=0) break;
+                highLightData[row - i][column + i].value = true
+                i++
+            }
+
+            i=1;
+            while ((row+i) in 0..7 && (column + i) in 0..7) {
+                if (chessData[row+i][column + i].intValue!=0) break;
+                highLightData[row+i][column + i].value = true
+                i++
+            }
+
+            i=1;
+            while ((row+i) in 0..7 && (column - i) in 0..7) {
+                if (chessData[row + i][column - i].intValue!=0) break;
+                highLightData[row + i][column - i].value = true
+                i++
+            }
+
+
         }
     }
 }
@@ -209,7 +248,8 @@ fun ChessBoard(
                                row,
                                column,
                                chessData[selectedRow][selectedColumn].intValue,
-                               highlightData
+                               highlightData,
+                               chessData
                            )
                        }
                    }
