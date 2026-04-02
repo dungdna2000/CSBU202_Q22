@@ -84,26 +84,25 @@ class MainActivity : ComponentActivity() {
 //        var selectedMonth = mutableIntStateOf(now.monthValue)
 //        var selectedYear = mutableIntStateOf(now.year)
 
+        var myCounter = CounterObject(10,0)
 
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
-
-
-
-
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ChessBoard(
-                        modifier = Modifier.padding(innerPadding),
-                        chessData,
-                        highlightData,
+                    Counter(
+                        Modifier.padding(innerPadding),
+                        myCounter
                     )
+
+
+                    //                    ChessBoard(
+//                        modifier = Modifier.padding(innerPadding),
+//                        chessData,
+//                        highlightData,
+//                    )
 //                    CalendarScreen(selectedDate, selectedMonth, selectedYear)
 //                    MindGameScreen(innerPadding,data)
-//                    Counter(
-//                        Modifier.padding(innerPadding),
-//                        maxValue = 10, counterStyle = 1)
-//
 //                    Greeting(
 //                        data,
 //                        modifier = Modifier.padding(innerPadding)
@@ -447,67 +446,7 @@ fun MindGameScreen(innerpadding: PaddingValues, data: Array<Array<CardData>>) {
 
 }
 
-@Composable
-fun CounterButton(text: String, isEnabled: Boolean = true, onClick: ()->Unit) {
-    Button(
-        onClick = onClick,
-        shape = RectangleShape,
-        enabled = isEnabled,
-        modifier = Modifier.padding(1.dp)
-    ) {
-        Text(text = text, fontSize = 20.sp)
-    }
-}
 
-@Composable
-fun BarValue(modifier: Modifier = Modifier, maxValue: Int, currentValue: Int = 0) {
-    Row {
-        for (i in 1..maxValue) {
-            Spacer(
-                modifier =
-                    Modifier
-                        .fillMaxHeight()
-                        .width(20.dp)
-                        .padding(horizontal = 2.dp)
-                        .background(
-                            if (i<=currentValue) Color.Green else Color.Gray
-                        )
-            )
-        }
-    }
-}
-
-@Composable
-fun Counter(modifier: Modifier = Modifier, maxValue: Int = 10, counterStyle: Int = 0) {
-    var counterValue by remember { mutableStateOf(0)}
-    Column {
-        Spacer(modifier)
-        Row (
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.height(IntrinsicSize.Min)
-
-        ) {
-            CounterButton(text = "-", isEnabled = counterValue>0) {
-                if (counterValue>0) counterValue--
-            }
-            Spacer(modifier = Modifier.padding(horizontal = 10.dp))
-            if (counterStyle==0)
-                Text(
-                    text = counterValue.toString(),
-                    fontSize = 30.sp,
-                    fontWeight = FontWeight.ExtraBold
-                )
-            else if (counterStyle==1) {
-                BarValue(modifier, maxValue, counterValue)
-            }
-
-            Spacer(modifier = Modifier.padding(horizontal = 10.dp))
-            CounterButton(text = "+", isEnabled = counterValue<maxValue) {
-                if (counterValue<maxValue) counterValue++
-            }
-        }
-    }
-}
 
 @Composable
 fun CalButton(text: String, onClick: ()->Unit) {
