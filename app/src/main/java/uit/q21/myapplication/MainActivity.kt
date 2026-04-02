@@ -33,6 +33,7 @@ import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -84,17 +85,21 @@ class MainActivity : ComponentActivity() {
 //        var selectedMonth = mutableIntStateOf(now.monthValue)
 //        var selectedYear = mutableIntStateOf(now.year)
 
-        var myCounter = CounterObject(10,0)
+        val counterList =
+            mutableStateListOf(
+                CounterObject(10,0,Color.Blue),
+                CounterObject(15,5,Color.Cyan),
+                CounterObject(6,1,Color.Yellow),
+
+                )
 
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Counter(
-                        Modifier.padding(innerPadding),
-                        myCounter
-                    )
-
+                    CounterScreen(
+                        modifier = Modifier.padding(innerPadding),
+                        counters = counterList)
 
                     //                    ChessBoard(
 //                        modifier = Modifier.padding(innerPadding),

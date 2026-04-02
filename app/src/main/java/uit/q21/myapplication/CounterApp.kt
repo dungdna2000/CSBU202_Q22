@@ -1,12 +1,12 @@
 package uit.q21.myapplication
 
-import android.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -68,13 +68,51 @@ fun BarValue(modifier: Modifier = Modifier, maxValue: Int, currentValue: Int = 0
 
 
 @Composable
+fun CounterScreen(
+    modifier: Modifier = Modifier,
+    counters: MutableList<CounterObject>)
+{
+    val selectedColor = remember { mutableStateOf(Color.Yellow) }
+    Column(
+    ) {
+        Spacer(modifier = modifier)
+        Row() {
+            Button(
+                shape = RectangleShape,
+                onClick = {
+                    counters.add(CounterObject(color = selectedColor.value))
+                }
+            )
+            {
+                Text("+")
+            }
+            Spacer(modifier = Modifier.padding(5.dp))
+            ColorSelector(selectedColor = selectedColor)
+        }
+
+        for (counter in counters)
+            Row {
+                Button(
+                    shape = RectangleShape,
+                    onClick = {
+                        counters.remove(counter)
+                    }) {
+                    Text(text = "Delete")
+                }
+                Counter(counterObj = counter)
+            }
+    }
+}
+
+
+@Composable
 fun Counter(
     modifier: Modifier = Modifier,
     counterObj: CounterObject = CounterObject()
 ) {
     Row (
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.height(IntrinsicSize.Min)
+        modifier = Modifier.height(IntrinsicSize.Min).fillMaxWidth()
     ) {
         CounterButton(
             text = "-",
