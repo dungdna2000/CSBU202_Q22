@@ -39,18 +39,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flow
 import uit.q21.myapplication.ui.theme.MyApplicationTheme
 import java.time.LocalDate
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import java.time.LocalTime
-import kotlin.concurrent.thread
-import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
 //    var data = CalculatorData(0,0,-1)
@@ -94,14 +86,8 @@ class MainActivity : ComponentActivity() {
 //
 //                )
 
-        var timeFlow = MutableStateFlow(LocalTime.now())
-        lifecycleScope.launch {
-
-            while (true) {
-                timeFlow.value = LocalTime.now()
-                delay(1000)
-            }
-        }
+        val stopWatchData = StopWatchViewModel()
+        stopWatchData.start()
 
         enableEdgeToEdge()
         setContent {
@@ -111,6 +97,7 @@ class MainActivity : ComponentActivity() {
                         modifier =
                             Modifier
                                 .padding(innerPadding),
+                            stopWatchData = stopWatchData,
                         )
 //                    CounterScreen(
 //                        modifier = Modifier.padding(innerPadding),
