@@ -1,9 +1,6 @@
 package uit.q21.myapplication
 
-import android.graphics.fonts.FontStyle
 import android.os.Bundle
-import android.text.Layout
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,7 +10,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,9 +17,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -33,7 +27,6 @@ import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,14 +35,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import uit.q21.myapplication.ui.theme.MyApplicationTheme
 import java.time.LocalDate
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.time.LocalTime
+import kotlin.concurrent.thread
+import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
 //    var data = CalculatorData(0,0,-1)
@@ -60,22 +61,22 @@ class MainActivity : ComponentActivity() {
 //        arrayOf(CardData("2"),CardData("*"),CardData("&"),CardData("$")),
 //        arrayOf(CardData("*"),CardData("2"),CardData("&"),CardData("2"))
 //    )
-    val chessData =
-        Array(8) {
-            Array(8) { mutableIntStateOf(0) }
-        }
-
-    val highlightData =
-        Array(8) {
-            Array(8) { mutableStateOf(false) }
-        }
-
-    init {
-        chessData[0][0].intValue = 1
-        chessData[0][3].intValue = 2
-        for (col in 0..7)
-            chessData[1][col].intValue = 3
-    }
+//    val chessData =
+//        Array(8) {
+//            Array(8) { mutableIntStateOf(0) }
+//        }
+//
+//    val highlightData =
+//        Array(8) {
+//            Array(8) { mutableStateOf(false) }
+//        }
+//
+//    init {
+//        chessData[0][0].intValue = 1
+//        chessData[0][3].intValue = 2
+//        for (col in 0..7)
+//            chessData[1][col].intValue = 3
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,23 +86,37 @@ class MainActivity : ComponentActivity() {
 //        var selectedMonth = mutableIntStateOf(now.monthValue)
 //        var selectedYear = mutableIntStateOf(now.year)
 
-        val counterList =
-            mutableStateListOf(
-                CounterObject(10,0,Color.Blue),
-                CounterObject(15,5,Color.Cyan),
-                CounterObject(6,1,Color.Yellow),
+//        val counterList =
+//            mutableStateListOf(
+//                CounterObject(10,0,Color.Blue),
+//                CounterObject(15,5,Color.Cyan),
+//                CounterObject(6,1,Color.Yellow),
+//
+//                )
 
-                )
+        var timeFlow = MutableStateFlow(LocalTime.now())
+        lifecycleScope.launch {
+
+            while (true) {
+                timeFlow.value = LocalTime.now()
+                delay(1000)
+            }
+        }
 
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    CounterScreen(
-                        modifier = Modifier.padding(innerPadding),
-                        counters = counterList)
+                    StopWatchUI(
+                        modifier =
+                            Modifier
+                                .padding(innerPadding),
+                        )
+//                    CounterScreen(
+//                        modifier = Modifier.padding(innerPadding),
+//                        counters = counterList)
 
-                    //                    ChessBoard(
+//                    ChessBoard(
 //                        modifier = Modifier.padding(innerPadding),
 //                        chessData,
 //                        highlightData,
@@ -182,30 +197,30 @@ fun highLightMove(
                         highLightData[r][c].value = true
         }
         2 -> {
-            var i=1;
+            var i=1
             while ((row-i) in 0..7 && (column-i) in 0..7) {
-                if (chessData[row-i][column-i].intValue!=0) break;
+                if (chessData[row-i][column-i].intValue!=0) break
                 highLightData[row - i][column - i].value = true
                 i++
             }
 
-            i=1;
+            i=1
             while ((row-i) in 0..7 && (column + i) in 0..7) {
-                if (chessData[row-i][column+i].intValue!=0) break;
+                if (chessData[row-i][column+i].intValue!=0) break
                 highLightData[row - i][column + i].value = true
                 i++
             }
 
-            i=1;
+            i=1
             while ((row+i) in 0..7 && (column + i) in 0..7) {
-                if (chessData[row+i][column + i].intValue!=0) break;
+                if (chessData[row+i][column + i].intValue!=0) break
                 highLightData[row+i][column + i].value = true
                 i++
             }
 
-            i=1;
+            i=1
             while ((row+i) in 0..7 && (column - i) in 0..7) {
-                if (chessData[row + i][column - i].intValue!=0) break;
+                if (chessData[row + i][column - i].intValue!=0) break
                 highLightData[row + i][column - i].value = true
                 i++
             }
@@ -403,9 +418,9 @@ fun MindGameCard(cardData: CardData, onClick: ()->Unit) {
 
 @Composable
 fun MindGameScreen(innerpadding: PaddingValues, data: Array<Array<CardData>>) {
-    var lastRow by remember { mutableStateOf(-1)}
-    var lastColumn by remember { mutableStateOf(-1)}
-    var openCount by remember { mutableStateOf(0)}
+    var lastRow by remember { mutableIntStateOf(-1)}
+    var lastColumn by remember { mutableIntStateOf(-1)}
+    var openCount by remember { mutableIntStateOf(0)}
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
